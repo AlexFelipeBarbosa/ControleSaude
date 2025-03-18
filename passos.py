@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2 import sql
 
 # Recuperar as credenciais do banco de dados do arquivo secrets.toml
-db_config = st.secrets["postgresql"]
+db_config = st.secrets["neon"]
 
 # Função para conectar ao banco de dados
 def get_connection():
