@@ -1,38 +1,52 @@
 # Alex Barbosa 18/03/2025
 
-
 import streamlit as st
 import psycopg2
+import webbrowser
 import os
 
+st.set_page_config(page_title="Controle Diário de Saúde - Login", page_icon="🔑")
 
-conn = st.connection("neon", type="sql")
+# Criando a conexão com o banco de dados
+try:
+    conn = st.connection("neon", type="sql")
+    st.success("✅ Conexão com o banco estabelecida!")
+except Exception as e:
+    st.error(f"❌ Erro ao conectar ao banco: {e}")
+    st.stop()
 
 def autenticar_usuario(username, password):
+    """Função para verificar se o usuário e senha são válidos no banco de dados."""
     try:
-        conn = psycopg2.connect(**conn)
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM usuarios WHERE nome = %s AND senha = %s", (username, password))
-        user = cur.fetchone()
-        cur.close()
-        conn.close()
-        return user is not None
+        query = f"SELECT * FROM usuarios WHERE nome = '{username}' AND senha = '{password}'"
+        user = conn.query(query)  # 🔹 Forma correta de executar a query
+        
+        return not user.empty  # Se houver resultado, o usuário é válido
     except Exception as e:
-        st.error(f"Erro ao conectar ao banco de dados: {e}")
+        st.error(f"Erro ao buscar usuário no banco: {e}")
         return False
 
 def main():
-    st.set_page_config(page_title="Controle de Saúde - Login", page_icon="🔑")
-    
     st.title("🏥 Controle de Saúde - Login")
-    
+
     username = st.text_input("Usuário", placeholder="Digite seu usuário")
     password = st.text_input("Senha", type="password", placeholder="Digite sua senha")
-    
+
     if st.button("Entrar"):
         if autenticar_usuario(username, password):
             st.success(f"Bem-vindo, {username}!")
-            st.experimental_set_query_params(page="controle_saude")
+            
+            # Redirecionamento para passos.py
+            script_dir = os.path.dirname(__file__)
+            rel_path = "passos.py"
+            abs_file_path = os.path.join(script_dir, rel_path)
+            
+            # Verifica se o arquivo existe
+            if os.path.exists(abs_file_path):
+                st.rerun()
+                webbrowser.open(f"streamlit run {abs_file_path}")
+            else:
+                st.error("Arquivo passos.py não encontrado!")
         else:
             st.error("Usuário ou senha incorretos. Tente novamente.")
 
