@@ -32,7 +32,7 @@ def main():
     if st.button("Entrar"):
         if autenticar_usuario(username, password):
             st.success(f"Bem-vindo, {username}!")
-            st.switch_page("passos")  # Redireciona para passos.py
+            st.experimental_set_query_params(page="controle_saude")
         else:
             st.error("Usuário ou senha incorretos. Tente novamente.")
 
