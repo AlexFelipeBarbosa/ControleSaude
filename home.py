@@ -4,20 +4,13 @@
 import streamlit as st
 import psycopg2
 import os
-from dotenv import load_dotenv
 
 
-load_dotenv()
+conn = st.connection("neon", type="sql")
 
-conexão = {
-    'host': os.getenv('DB_HOST'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'database': os.getenv('DB_NAME')
-}
 def autenticar_usuario(username, password):
     try:
-        conn = psycopg2.connect(**conexão)
+        conn = psycopg2.connect(**conn)
         cur = conn.cursor()
         cur.execute("SELECT * FROM usuarios WHERE nome = %s AND senha = %s", (username, password))
         user = cur.fetchone()
